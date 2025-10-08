@@ -14,7 +14,7 @@ function App() {
       <div className="p-4">
          <p className="font-bold text-3xl">{message}</p>
          <Button className="bg-black text-white cursor-pointer">
-            Click me
+            Click me!
          </Button>
       </div>
    );
