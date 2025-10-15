@@ -19,17 +19,21 @@ type Message = {
 
 const ChatBot = () => {
    const [messages, setMessages] = useState<Message[]>([]);
+   const [isBotTyping, setIsBotTyping] = useState(false);
    const conversationId = useRef(crypto.randomUUID());
    const { register, handleSubmit, reset, formState } = useForm<FormData>();
 
    const onSubmit = async ({ prompt }: FormData) => {
       setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
+      setIsBotTyping(true);
+
       reset();
       const { data } = await axios.post<ChatResponse>('/api/chat', {
          prompt,
          conversationId: conversationId.current,
       });
       setMessages((prev) => [...prev, { content: data.message, role: 'bot' }]);
+      setIsBotTyping(false);
    };
 
    const onKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
@@ -40,19 +44,28 @@ const ChatBot = () => {
    };
 
    return (
-      <div className="flex flex-col gap-3 mb-10">
-         {messages.map((message, index) => (
-            <p
-               key={index}
-               className={`px-3 py-1 rounded-xl ${
-                  message.role === 'user'
-                     ? 'bg-blue-600 text-white self-end'
-                     : 'bg-gray-100 text-black self-start'
-               }`}
-            >
-               <ReactMarkdown>{message.content}</ReactMarkdown>
-            </p>
-         ))}
+      <div>
+         <div className="flex flex-col gap-3 mb-10">
+            {messages.map((message, index) => (
+               <p
+                  key={index}
+                  className={`px-3 py-1 rounded-xl ${
+                     message.role === 'user'
+                        ? 'bg-blue-600 text-white self-end'
+                        : 'bg-gray-100 text-black self-start'
+                  }`}
+               >
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+               </p>
+            ))}
+            {isBotTyping && (
+                <div className='flex self-start gap-1 px-3 py-3 bg-gray-200 rounded-xl'>
+                    <div className='w-2 h-2 rounded-full bg-gray-800 animate-pulse'></div>
+                    <div className='w-2 h-2 rounded-full bg-gray-800 animate-pulse [animation-delay:0.2s]'></div>
+                    <div className='w-2 h-2 rounded-full bg-gray-800 animate-pulse [animation-delay:0.4s]'></div>
+                </div>
+            )}
+         </div>
          <form
             onSubmit={handleSubmit(onSubmit)}
             onKeyDown={onKeyDown}
