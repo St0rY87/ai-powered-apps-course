@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useForm } from 'react-hook-form';
 import { FaArrowUp } from 'react-icons/fa';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
+import TypingIndicator from './typingIndicator';
 
 type FormData = {
    prompt: string;
@@ -30,26 +31,27 @@ const ChatBot = () => {
    }, [messages]);
 
    const onSubmit = async ({ prompt }: FormData) => {
-
       try {
-      setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
-      setIsBotTyping(true);
-      setError('');
-      reset({ prompt: '' });
-      const { data } = await axios.post<ChatResponse>('/api/chat', {
-         prompt,
-         conversationId: conversationId.current,
-      });
-      setMessages((prev) => [...prev, { content: data.message, role: 'bot' }]);
-      setIsBotTyping(false);
-   } catch (error) {
-      console.error(error);
-      setError('Something went wrong. Please try again later.');
-   } finally {
-      setIsBotTyping(false);
-   }
-
-}
+         setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
+         setIsBotTyping(true);
+         setError('');
+         reset({ prompt: '' });
+         const { data } = await axios.post<ChatResponse>('/api/chat', {
+            prompt,
+            conversationId: conversationId.current,
+         });
+         setMessages((prev) => [
+            ...prev,
+            { content: data.message, role: 'bot' },
+         ]);
+         setIsBotTyping(false);
+      } catch (error) {
+         console.error(error);
+         setError('Something went wrong. Please try again later.');
+      } finally {
+         setIsBotTyping(false);
+      }
+   };
 
    const onKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -82,14 +84,8 @@ const ChatBot = () => {
                   <ReactMarkdown>{message.content}</ReactMarkdown>
                </div>
             ))}
-            {isBotTyping && (
-               <div className="flex self-start gap-1 px-3 py-3 bg-gray-200 rounded-xl">
-                  <div className="w-2 h-2 rounded-full bg-gray-800 animate-pulse"></div>
-                  <div className="w-2 h-2 rounded-full bg-gray-800 animate-pulse [animation-delay:0.2s]"></div>
-                  <div className="w-2 h-2 rounded-full bg-gray-800 animate-pulse [animation-delay:0.4s]"></div>
-               </div>
-            )}
-            {error && <p className='text-red-500'>{error}</p>}
+            {isBotTyping && <TypingIndicator/>}
+            {error && <p className="text-red-500">{error}</p>}
          </div>
          <form
             onSubmit={handleSubmit(onSubmit)}
