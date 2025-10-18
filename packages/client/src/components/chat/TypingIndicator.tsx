@@ -1,6 +1,5 @@
-import React from 'react';
 
-const typingIndicator = () => {
+const TypingIndicator = () => {
    return (
       <div className="flex self-start gap-1 px-3 py-3 bg-gray-200 rounded-xl">
          <Dot />
@@ -20,4 +19,4 @@ const Dot = ({ className }: DotProps) => (
    ></div>
 );
 
-export default typingIndicator;
+export default TypingIndicator;
