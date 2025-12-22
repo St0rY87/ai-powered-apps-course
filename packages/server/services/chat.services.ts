@@ -11,7 +11,7 @@ const client = new OpenAI({
 });
 
 const parkInfo = fs.readFileSync(
-   path.join(__dirname, '..', 'prompts', 'WonderWorld.md'),
+   path.join(__dirname, '..', 'prompts', 'brerailib.md'),
    'utf-8'
 );
 const instructions = template.replace('{{parkInfo}}', parkInfo);
@@ -20,6 +20,7 @@ type ChatResponse = {
    id: string;
    message: string;
 };
+
 
 // Allow switching provider via env var LLM_PROVIDER.
 // If LLM_PROVIDER is not set but a DEEPSEEK_API_KEY is present, prefer Deepseek.
