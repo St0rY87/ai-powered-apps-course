@@ -8,19 +8,18 @@ export type ChatFormData = {
 };
 
 type Props = {
-    onSubmit: (data: ChatFormData) => void;
-}
+   onSubmit: (data: ChatFormData) => void;
+};
 
-
-const ChatInput = ({onSubmit}: Props) => {
+const ChatInput = ({ onSubmit }: Props) => {
    const { register, handleSubmit, reset, formState } = useForm<ChatFormData>();
 
-    const submit = handleSubmit(data => {
-        reset({ prompt: '' });
-        onSubmit(data);
-    });
+   const submit = handleSubmit((data) => {
+      reset({ prompt: '' });
+      onSubmit(data);
+   });
 
-    const handleKeyDown = (e: KeyboardEvent<HTMLFormElement>) => { 
+   const handleKeyDown = (e: KeyboardEvent<HTMLFormElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
          e.preventDefault();
          submit();
@@ -29,7 +28,7 @@ const ChatInput = ({onSubmit}: Props) => {
 
    return (
       <form
-        onSubmit={submit}
+         onSubmit={submit}
          onKeyDown={handleKeyDown}
          className="flex flex-col gap-2 items-end border-2 p-4 rounded-3xl"
       >
@@ -40,7 +39,7 @@ const ChatInput = ({onSubmit}: Props) => {
             })}
             autoFocus
             className="w-full border-0 focus:outline-0 resize-none"
-            placeholder="Ask anything"
+            placeholder="Спросите что-нибудь"
             maxLength={1000}
          />
          <Button
