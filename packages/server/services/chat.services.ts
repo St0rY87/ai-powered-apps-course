@@ -21,15 +21,17 @@ type ChatResponse = {
    message: string;
 };
 
-
 // Allow switching provider via env var LLM_PROVIDER.
 // If LLM_PROVIDER is not set but a DEEPSEEK_API_KEY is present, prefer Deepseek.
 const PROVIDER = (
-   process.env.LLM_PROVIDER || (process.env.DEEPSEEK_API_KEY ? 'deepseek' : 'openai')
+   process.env.LLM_PROVIDER ||
+   (process.env.DEEPSEEK_API_KEY ? 'deepseek' : 'openai')
 ).toLowerCase();
 
 if (PROVIDER === 'deepseek' && !process.env.DEEPSEEK_API_KEY) {
-   console.warn('LLM_PROVIDER=deepseek selected but DEEPSEEK_API_KEY is not set.');
+   console.warn(
+      'LLM_PROVIDER=deepseek selected but DEEPSEEK_API_KEY is not set.'
+   );
 }
 
 // Public interface
@@ -40,7 +42,9 @@ export const chatService = {
    ): Promise<ChatResponse> {
       // If Deepseek is requested, call its chat/completions endpoint directly
       if (PROVIDER === 'deepseek') {
-         const base = (process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com').replace(/\/$/, '');
+         const base = (
+            process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com'
+         ).replace(/\/$/, '');
          const url = `${base}/chat/completions`;
 
          const messages = [
@@ -53,11 +57,12 @@ export const chatService = {
             messages,
             stream: false,
             temperature: 0.2,
-            max_tokens: 500,
+            max_tokens: 5000,
          };
 
          // Include previous_response_id if available and desired
-         const prevId = conversationRepository.getLastResponseId(conversationId);
+         const prevId =
+            conversationRepository.getLastResponseId(conversationId);
          if (prevId) body.previous_response_id = prevId;
 
          const resp = await axios.post(url, body, {
