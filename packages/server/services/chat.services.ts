@@ -6,6 +6,7 @@ import { conversationRepository } from '../repositories/conversation.repository'
 import template from '../prompts/chatbot.txt';
 
 // Implementation detail for OpenAI (existing)
+import type { ChatMessage } from '../repositories/conversation.repository';
 const client = new OpenAI({
    apiKey: process.env.OPENAI_API_KEY,
 });
@@ -47,33 +48,57 @@ export const chatService = {
          ).replace(/\/$/, '');
          const url = `${base}/chat/completions`;
 
+         // Build message list from conversation history so Deepseek receives full context
+         const history: ChatMessage[] =
+            conversationRepository.getConversationMessages(conversationId);
+
          const messages = [
             { role: 'system', content: instructions },
+            // include historical messages (user/assistant)
+            ...history.map((m) => ({ role: m.role, content: m.content })),
+            // current user message
             { role: 'user', content: prompt },
          ];
+
+         // persist user message locally so next calls include it in history
+         conversationRepository.appendMessage(conversationId, {
+            role: 'user',
+            content: prompt,
+         });
 
          const body: Record<string, any> = {
             model: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
             messages,
             stream: false,
             temperature: 0.2,
-            max_tokens: 5000,
+            // keep default reasonable to avoid provider rejection; reduce from 5000 to 500
+            max_tokens: Number(process.env.DEEPSEEK_MAX_TOKENS ?? 500),
          };
 
          // Include previous_response_id if available and desired
-         const prevId =
-            conversationRepository.getLastResponseId(conversationId);
-         if (prevId) body.previous_response_id = prevId;
+         // Deepseek works better when we send the full messages history; don't rely on previous_response_id here.
 
-         const resp = await axios.post(url, body, {
-            headers: {
-               Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
-               'Content-Type': 'application/json',
-            },
-            timeout: Number(process.env.DEEPSEEK_TIMEOUT_MS ?? 60_000),
-         });
-
-         const data = resp.data ?? {};
+         let data: any = {};
+         try {
+            const resp = await axios.post(url, body, {
+               headers: {
+                  Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+                  'Content-Type': 'application/json',
+               },
+               timeout: Number(process.env.DEEPSEEK_TIMEOUT_MS ?? 60_000),
+            });
+            data = resp.data ?? {};
+         } catch (err: any) {
+            // Log error and rethrow a generic error for the controller to handle
+            console.error('Deepseek API request failed', {
+               provider: 'deepseek',
+               url,
+               status: err?.response?.status,
+               responseData: err?.response?.data,
+               message: err?.message,
+            });
+            throw new Error('Deepseek API error');
+         }
 
          const messageText =
             data?.choices?.[0]?.message?.content ||
@@ -87,6 +112,12 @@ export const chatService = {
          const id = data?.id || data?.response_id || '';
 
          if (id) conversationRepository.setLastResponseId(conversationId, id);
+
+         // persist assistant reply so future calls include it in history
+         conversationRepository.appendMessage(conversationId, {
+            role: 'assistant',
+            content: String(messageText),
+         });
 
          return { id, message: String(messageText) };
       }
