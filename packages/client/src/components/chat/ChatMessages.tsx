@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
+import type { Components } from 'react-markdown';
 
 export type Message = {
    content: string;
@@ -24,6 +25,17 @@ const ChatMessages = ({ messages }: Props) => {
          e.clipboardData.setData('text/plain', selection);
       }
    };
+
+   const markdownComponents: Components = {
+      a: ({ ...props }) => (
+         <a 
+            target="_blank"
+            rel="noopener noreferrer"
+            {...props}
+         />
+      ),
+   };
+
    return (
       <div className="flex flex-col gap-3">
          {messages.map((message, index) => (
@@ -37,7 +49,9 @@ const ChatMessages = ({ messages }: Props) => {
                      : 'bg-gray-100 text-black self-start mb-8'
                }`}
             >
-               <ReactMarkdown>{message.content}</ReactMarkdown>
+               <ReactMarkdown components={markdownComponents}>
+                  {message.content}
+               </ReactMarkdown>
             </div>
          ))}
       </div>
