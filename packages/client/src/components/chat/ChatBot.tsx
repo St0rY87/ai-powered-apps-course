@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid'; // Импортируем uuid
 import ChatInput, { type ChatFormData } from './ChatInput';
 import type { Message } from './ChatMessages';
 import ChatMessages from './ChatMessages';
@@ -8,7 +9,7 @@ import popSound from '@/assets/sounds/pop.mp3';
 import notificationSound from '@/assets/sounds/notification.mp3';
 
 const popAudio = new Audio(popSound);
-popAudio.volume = 0.2
+popAudio.volume = 0.2;
 
 const notificationAudio = new Audio(notificationSound);
 notificationAudio.volume = 0.2;
@@ -21,7 +22,9 @@ const ChatBot = () => {
    const [messages, setMessages] = useState<Message[]>([]);
    const [isBotTyping, setIsBotTyping] = useState(false);
    const [error, setError] = useState('');
-   const conversationId = useRef(crypto.randomUUID());
+
+   // Заменяем crypto.randomUUID() на uuidv4()
+   const conversationId = useRef(uuidv4());
 
    const onSubmit = async ({ prompt }: ChatFormData) => {
       try {
