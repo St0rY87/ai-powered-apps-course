@@ -118,3 +118,8 @@
       @apply bg-background text-foreground;
    }
 }
+
+.answer a {
+   color: #2563eb;
+   font-weight: 500;
+}

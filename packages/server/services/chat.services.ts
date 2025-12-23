@@ -15,7 +15,7 @@ const parkInfo = fs.readFileSync(
    path.join(__dirname, '..', 'prompts', 'brerailib.md'),
    'utf-8'
 );
-const instructions = template.replace('{{parkInfo}}', parkInfo);
+const instructions = template.replace('{{libInfo}}', parkInfo);
 
 type ChatResponse = {
    id: string;
