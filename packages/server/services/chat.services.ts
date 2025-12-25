@@ -4,6 +4,7 @@ import axios from 'axios';
 import OpenAI from 'openai';
 import { conversationRepository } from '../repositories/conversation.repository';
 import template from '../prompts/chatbot.txt';
+import {getCurrentDateTime} from '../utils/dateFormatter'
 
 // Implementation detail for OpenAI (existing)
 import type { ChatMessage } from '../repositories/conversation.repository';
@@ -11,11 +12,20 @@ const client = new OpenAI({
    apiKey: process.env.OPENAI_API_KEY,
 });
 
-const parkInfo = fs.readFileSync(
+const currentDateTime = getCurrentDateTime();
+
+
+const libInfo = fs.readFileSync(
    path.join(__dirname, '..', 'prompts', 'brerailib.md'),
    'utf-8'
 );
-const instructions = template.replace('{{libInfo}}', parkInfo);
+
+const baseInstructions = template.replace('{{libInfo}}', libInfo);
+
+const instructions = `
+${baseInstructions}
+ТЕКУЩАЯ ИНФОРМАЦИЯ (обновляется при каждом запросе): ${currentDateTime}
+`
 
 type ChatResponse = {
    id: string;
