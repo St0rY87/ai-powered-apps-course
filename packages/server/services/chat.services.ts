@@ -17,6 +17,16 @@ const libInfo = fs.readFileSync(
    'utf-8'
 );
 
+const currentDateTime = getCurrentDateTime();
+const baseInstructions = template.replace('{{libInfo}}', libInfo);
+
+const instructions = `
+      ${baseInstructions}
+
+      ВАЖНО! ВСЕГДА ИСПОЛЬЗУЙ ЭТУ АКТУАЛЬНУЮ ИНФОРМАЦИЮ 
+      КОГДА РАССКАЗЫВАЕТЕ ИНФОРМАЦИЮ ОБ ОТКРЫТИИ ИЛИ ЗАКРЫТИИ БИБИЛИОТЕК.:
+      Текущие дата : ${currentDateTime}
+      `;
 
 // const baseInstructions = template.replace('{{libInfo}}', libInfo);
 
@@ -49,17 +59,6 @@ export const chatService = {
       prompt: string,
       conversationId: string
    ): Promise<ChatResponse> {
-      const currentDateTime = getCurrentDateTime();
-      const baseInstructions = template.replace('{{libInfo}}', libInfo);
-
-      const instructions = `
-      ${baseInstructions}
-
-      ВАЖНО! ВСЕГДА ИСПОЛЬЗУЙ ЭТУ АКТУАЛЬНУЮ ИНФОРМАЦИЮ 
-      КОГДА РАССКАЗЫВАЕТЕ ИНФОРМАЦИЮ ОБ ОТКРЫТИИ ИЛИ ЗАКРЫТИИ БИБИЛИОТЕК.:
-      Текущие дата и время: ${currentDateTime}
-      `;
-
       // If Deepseek is requested, call its chat/completions endpoint directly
       if (PROVIDER === 'deepseek') {
          const base = (

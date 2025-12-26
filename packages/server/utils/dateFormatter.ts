@@ -15,6 +15,6 @@ export const getCurrentDateTime = () => {
         minute: '2-digit', 
         // second: '2-digit'   
     });
-    return `Сегодняшняя дата: ${dateStr}. Текущее время: ${timeStr}.`;
+    return `Сегодняшняя дата: ${dateStr}`;
 }
 
