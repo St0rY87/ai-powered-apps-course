@@ -13,7 +13,7 @@ export const getCurrentDateTime = () => {
         timeZone: 'Europe/Minsk',
         hour: '2-digit',    
         minute: '2-digit', 
-        second: '2-digit'   
+        // second: '2-digit'   
     });
     return `Сегодняшняя дата: ${dateStr}. Текущее время: ${timeStr}.`;
 }

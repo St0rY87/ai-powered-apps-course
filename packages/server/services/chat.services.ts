@@ -4,7 +4,7 @@ import axios from 'axios';
 import OpenAI from 'openai';
 import { conversationRepository } from '../repositories/conversation.repository';
 import template from '../prompts/chatbot.txt';
-import {getCurrentDateTime} from '../utils/dateFormatter'
+import { getCurrentDateTime } from '../utils/dateFormatter';
 
 // Implementation detail for OpenAI (existing)
 import type { ChatMessage } from '../repositories/conversation.repository';
@@ -12,20 +12,18 @@ const client = new OpenAI({
    apiKey: process.env.OPENAI_API_KEY,
 });
 
-const currentDateTime = getCurrentDateTime();
-
-
 const libInfo = fs.readFileSync(
    path.join(__dirname, '..', 'prompts', 'brerailib.md'),
    'utf-8'
 );
 
-const baseInstructions = template.replace('{{libInfo}}', libInfo);
 
-const instructions = `
-${baseInstructions}
-ТЕКУЩАЯ ИНФОРМАЦИЯ (обновляется при каждом запросе): ${currentDateTime}
-`
+// const baseInstructions = template.replace('{{libInfo}}', libInfo);
+
+// const instructions = `
+// ${baseInstructions}
+// ТЕКУЩАЯ ИНФОРМАЦИЯ (обновляется при каждом запросе): ${currentDateTime}
+// `;
 
 type ChatResponse = {
    id: string;
@@ -51,6 +49,17 @@ export const chatService = {
       prompt: string,
       conversationId: string
    ): Promise<ChatResponse> {
+      const currentDateTime = getCurrentDateTime();
+      const baseInstructions = template.replace('{{libInfo}}', libInfo);
+
+      const instructions = `
+      ${baseInstructions}
+
+      ВАЖНО! ВСЕГДА ИСПОЛЬЗУЙ ЭТУ АКТУАЛЬНУЮ ИНФОРМАЦИЮ 
+      КОГДА РАССКАЗЫВАЕТЕ ИНФОРМАЦИЮ ОБ ОТКРЫТИИ ИЛИ ЗАКРЫТИИ БИБИЛИОТЕК.:
+      Текущие дата и время: ${currentDateTime}
+      `;
+
       // If Deepseek is requested, call its chat/completions endpoint directly
       if (PROVIDER === 'deepseek') {
          const base = (
